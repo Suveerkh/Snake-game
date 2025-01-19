@@ -11,19 +11,62 @@
     }
 
     body {
-      background: black;
+      background-color: #212121;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
+      color: white;
+      font-family: Arial, sans-serif;
     }
 
     canvas {
-      border: 1px solid white;
+      border: 2px solid white;
+    }
+
+    #gameOverScreen {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      text-align: center;
+    }
+
+    #gameOverScreen h2 {
+      margin: 0;
+      font-size: 3rem;
+      color: red;
+    }
+
+    #gameOverScreen p {
+      font-size: 1.5rem;
+      color: white;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 1.2rem;
+      background-color: green;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    button:hover {
+      background-color: darkgreen;
     }
   </style>
 </head>
 <body>
-  <canvas width="400" height="400" id="gameCanvas"></canvas>
+
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
+  <div id="gameOverScreen">
+    <h2>Game Over!</h2>
+    <p>Your Score: <span id="finalScore">0</span></p>
+    <button onclick="restartGame()">Restart</button>
+  </div>
 
   <script>
     var canvas = document.getElementById('gameCanvas');
@@ -31,7 +74,6 @@
     var grid = 16;
     var count = 0;
     var score = 0;
-
     var snake = {
       x: 160,
       y: 160,
@@ -40,11 +82,24 @@
       cells: [],
       maxCells: 4
     };
-
     var apple = { x: 320, y: 320 };
 
     function getRandomInt(min, max) {
       return Math.floor(Math.random() * (max - min)) + min;
+    }
+
+    function gameOver() {
+      document.getElementById('finalScore').textContent = score;
+      document.getElementById('gameOverScreen').style.display = 'block';
+    }
+
+    function restartGame() {
+      document.getElementById('gameOverScreen').style.display = 'none';
+      score = 0;
+      snake = { x: 160, y: 160, dx: grid, dy: 0, cells: [], maxCells: 4 };
+      apple.x = getRandomInt(0, 25) * grid;
+      apple.y = getRandomInt(0, 25) * grid;
+      requestAnimationFrame(loop);
     }
 
     function loop() {
@@ -58,29 +113,20 @@
       snake.x += snake.dx;
       snake.y += snake.dy;
 
-      if (snake.x < 0) snake.x = canvas.width - grid;
-      else if (snake.x >= canvas.width) snake.x = 0;
-
-      if (snake.y < 0) snake.y = canvas.height - grid;
-      else if (snake.y >= canvas.height) snake.y = 0;
+      if (snake.x < 0 || snake.x >= canvas.width || snake.y < 0 || snake.y >= canvas.height) {
+        return gameOver();
+      }
 
       snake.cells.unshift({ x: snake.x, y: snake.y });
-
       if (snake.cells.length > snake.maxCells) {
         snake.cells.pop();
       }
 
-      // Draw apple
       context.fillStyle = 'red';
       context.fillRect(apple.x, apple.y, grid - 1, grid - 1);
 
-      // Draw score
-      context.fillStyle = 'white';
-      context.font = '16px Arial';
-      context.fillText('Score: ' + score, 10, 20);
-
       context.fillStyle = 'green';
-      snake.cells.forEach(function (cell, index) {
+      snake.cells.forEach(function(cell, index) {
         context.fillRect(cell.x, cell.y, grid - 1, grid - 1);
 
         if (cell.x === apple.x && cell.y === apple.y) {
@@ -92,21 +138,17 @@
 
         for (var i = index + 1; i < snake.cells.length; i++) {
           if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
-            snake.x = 160;
-            snake.y = 160;
-            snake.cells = [];
-            snake.maxCells = 4;
-            snake.dx = grid;
-            snake.dy = 0;
-            score = 0;
-            apple.x = getRandomInt(0, 25) * grid;
-            apple.y = getRandomInt(0, 25) * grid;
+            return gameOver();
           }
         }
       });
+
+      context.fillStyle = 'white';
+      context.font = '16px Arial';
+      context.fillText('Score: ' + score, 10, 20);
     }
 
-    document.addEventListener('keydown', function (e) {
+    document.addEventListener('keydown', function(e) {
       if (e.which === 37 && snake.dx === 0) {
         snake.dx = -grid;
         snake.dy = 0;
@@ -124,5 +166,6 @@
 
     requestAnimationFrame(loop);
   </script>
+
 </body>
 </html>
