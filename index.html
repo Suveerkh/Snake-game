@@ -8,14 +8,10 @@
     html, body {
       height: 100%;
       margin: 0;
-    }
-
-    body {
-      background: black;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
+      background-color: #212121;
       color: white;
       font-family: Arial, sans-serif;
     }
@@ -23,6 +19,7 @@
     h1 {
       margin: 0;
       font-size: 3rem;
+      text-align: center;
     }
 
     button {
@@ -42,12 +39,13 @@
   </style>
 </head>
 <body>
-  <h1>Snake Game</h1>
-  <button onclick="startGame()">Start Game</button>
+  <div>
+    <h1>Snake Game</h1>
+    <button onclick="startGame()">Start Game</button>
+  </div>
 
   <script>
     function startGame() {
-      // Redirect to the snake game file
       window.location.href = "snake-game.html";
     }
   </script>
